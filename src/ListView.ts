@@ -320,6 +320,72 @@ export class ListView extends ItemView {
 				itemsContainer.classList.add("show-dividers");
 			}
 			
+			// 为itemsContainer添加拖移支持，允许拖移到空白区域
+			itemsContainer.ondragover = (e) => {
+				const dragging = this.containerEl.children[1]?.querySelector(".list-sidebar-item.dragging") as HTMLElement;
+				if (!dragging) return;
+				if (!dragging.classList.contains("list-sidebar-item")) return;
+				e.preventDefault();
+				if (e.dataTransfer) {
+					e.dataTransfer.dropEffect = "move";
+				}
+				// 找到最后一个item元素，将dragging插入到末尾（在addItemBtn之前）
+				const items = Array.from(itemsContainer.children).filter(
+					el => el.classList.contains("list-sidebar-item")
+				);
+				// 找到addItemBtn（如果存在）
+				const addBtn = itemsContainer.querySelector(".list-sidebar-add-item-btn");
+				if (addBtn) {
+					// 如果有addItemBtn，插入到它之前
+					itemsContainer.insertBefore(dragging, addBtn);
+				} else {
+					// 如果没有addItemBtn，直接append
+					itemsContainer.appendChild(dragging);
+				}
+			};
+			
+			itemsContainer.ondrop = async (e) => {
+				const dragging = this.containerEl.children[1]?.querySelector(".list-sidebar-item.dragging") as HTMLElement;
+				if (!dragging) return;
+				if (!dragging.classList.contains("list-sidebar-item")) return;
+				e.preventDefault();
+				if (e.dataTransfer) {
+					try {
+						const data = JSON.parse(e.dataTransfer.getData("text/plain"));
+						const fromListIndex = data.listIndex;
+						const fromItemIndex = data.itemIndex;
+						// 计算目标位置（最后一个位置）
+						const items = Array.from(itemsContainer.children).filter(
+							el => el.classList.contains("list-sidebar-item")
+						);
+						const toItemIndex = items.indexOf(dragging);
+						
+						if (!isNaN(fromListIndex) && !isNaN(fromItemIndex) && 
+						    !isNaN(toItemIndex) && toItemIndex >= 0 && 
+						    fromListIndex >= 0 && fromListIndex < this.lists.length &&
+						    fromItemIndex >= 0 && fromItemIndex < this.lists[fromListIndex].items.length &&
+						    toItemIndex <= this.lists[listIndex].items.length) {
+							if (fromListIndex === listIndex && fromItemIndex !== toItemIndex) {
+								// 同一list内移动
+								dragging.dataset.dragProcessed = "true";
+								const [movedItem] = this.lists[listIndex].items.splice(fromItemIndex, 1);
+								this.lists[listIndex].items.splice(toItemIndex, 0, movedItem);
+								await this.saveData();
+							} else if (fromListIndex !== listIndex) {
+								// 跨list移动
+								dragging.dataset.dragProcessed = "true";
+								const [movedItem] = this.lists[fromListIndex].items.splice(fromItemIndex, 1);
+								this.lists[listIndex].items.splice(toItemIndex, 0, movedItem);
+								await this.saveData();
+							}
+						}
+					} catch (error) {
+						// 解析错误，回弹
+						this.render();
+					}
+				}
+			};
+			
 			list.items.forEach((item, itemIndex) => {
 				this.renderItem(itemsContainer, item, listIndex, itemIndex, list.items.length);
 			});
@@ -348,8 +414,9 @@ export class ListView extends ItemView {
 			itemEl.classList.add("list-sidebar-item-alternate");
 		}
 		
-		// 拖拽处理
+		// 拖拽处理 - 参考list的拖移逻辑
 		let dragStartItemIndex = itemIndex;
+		let dragStartListIndex = listIndex;
 		let isValidItemDrop = false;
 		itemEl.ondragstart = (e) => {
 			e.stopPropagation();
@@ -371,14 +438,18 @@ export class ListView extends ItemView {
 				}, 0);
 			}
 			itemEl.classList.add("dragging");
+			itemEl.dataset.dragProcessed = "false";
 			dragStartItemIndex = itemIndex;
+			dragStartListIndex = listIndex;
 			isValidItemDrop = false;
 		};
 		
 		itemEl.ondragend = async (e) => {
+			const wasProcessed = itemEl.dataset.dragProcessed === "true";
 			itemEl.classList.remove("dragging");
+			delete itemEl.dataset.dragProcessed;
 			// 如果已经有有效放置，只需要重新渲染以同步UI
-			if (isValidItemDrop) {
+			if (wasProcessed || isValidItemDrop) {
 				this.render();
 				return;
 			}
@@ -398,18 +469,18 @@ export class ListView extends ItemView {
 			).indexOf(itemEl);
 			
 			// 如果位置没变，需要回弹动画
-			if (finalListIndex === listIndex && finalIndex === dragStartItemIndex) {
+			if (finalListIndex === dragStartListIndex && finalIndex === dragStartItemIndex) {
 				this.render();
 			} else if (finalListIndex >= 0 && finalListIndex < this.lists.length && 
 			           finalIndex >= 0 && finalIndex <= this.lists[finalListIndex].items.length) {
 				// 位置改变了，即使之前经过非法位置，只要最终位置合法，就允许放置
-				if (finalListIndex === listIndex) {
+				if (finalListIndex === dragStartListIndex) {
 					// 同一list内移动
-					const [movedItem] = this.lists[listIndex].items.splice(dragStartItemIndex, 1);
-					this.lists[listIndex].items.splice(finalIndex, 0, movedItem);
+					const [movedItem] = this.lists[dragStartListIndex].items.splice(dragStartItemIndex, 1);
+					this.lists[dragStartListIndex].items.splice(finalIndex, 0, movedItem);
 				} else {
 					// 跨list移动
-					const [movedItem] = this.lists[listIndex].items.splice(dragStartItemIndex, 1);
+					const [movedItem] = this.lists[dragStartListIndex].items.splice(dragStartItemIndex, 1);
 					this.lists[finalListIndex].items.splice(finalIndex, 0, movedItem);
 				}
 				await this.saveData();
@@ -423,7 +494,9 @@ export class ListView extends ItemView {
 		itemEl.ondragover = (e) => {
 			e.preventDefault();
 			e.stopPropagation();
-			const dragging = container.querySelector(".dragging") as HTMLElement;
+			// 查找所有items容器中的dragging元素（可能来自其他list）
+			const containerEl = this.containerEl.children[1] as HTMLElement;
+			const dragging = containerEl.querySelector(".list-sidebar-item.dragging") as HTMLElement;
 			if (!dragging) return;
 			
 			// 确保dragging元素是item类型
@@ -460,21 +533,23 @@ export class ListView extends ItemView {
 					    !isNaN(toItemIndex) && toItemIndex >= 0 && 
 					    fromListIndex >= 0 && fromListIndex < this.lists.length &&
 					    fromItemIndex >= 0 && fromItemIndex < this.lists[fromListIndex].items.length &&
-					    toItemIndex < this.lists[listIndex].items.length) {
+					    toItemIndex <= this.lists[listIndex].items.length) {
 						// 如果是在同一list内移动
 						if (fromListIndex === listIndex && fromItemIndex !== toItemIndex) {
 							isValidItemDrop = true;
+							itemEl.dataset.dragProcessed = "true";
 							const [movedItem] = this.lists[listIndex].items.splice(fromItemIndex, 1);
 							this.lists[listIndex].items.splice(toItemIndex, 0, movedItem);
 							await this.saveData();
-							this.render();
+							// 不在这里调用 render，让 ondragend 处理
 						} else if (fromListIndex !== listIndex) {
 							// 跨list移动
 							isValidItemDrop = true;
+							itemEl.dataset.dragProcessed = "true";
 							const [movedItem] = this.lists[fromListIndex].items.splice(fromItemIndex, 1);
 							this.lists[listIndex].items.splice(toItemIndex, 0, movedItem);
 							await this.saveData();
-							this.render();
+							// 不在这里调用 render，让 ondragend 处理
 						}
 					}
 				} catch (error) {
