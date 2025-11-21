@@ -155,7 +155,8 @@
 }
 
 .list-sidebar-item.dragging {
-	opacity: 1;
+	opacity: 0;
+	pointer-events: none;
 }
 
 /* 拖拽占位符 */
