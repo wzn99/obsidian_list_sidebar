@@ -1,0 +1,203 @@
+/* 列表侧边栏容器 */
+.list-sidebar-container {
+	padding: 10px;
+	height: 100%;
+	overflow-y: auto;
+}
+
+/* 头部 */
+.list-sidebar-header {
+	display: flex;
+	justify-content: flex-end;
+	margin-bottom: 10px;
+	padding-bottom: 10px;
+	border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.list-sidebar-settings-btn {
+	background: none;
+	border: none;
+	cursor: pointer;
+	font-size: 18px;
+	padding: 4px 8px;
+	border-radius: 4px;
+	transition: background-color 0.2s;
+}
+
+.list-sidebar-settings-btn:hover {
+	background-color: var(--background-modifier-hover);
+}
+
+/* 列表容器 */
+.list-sidebar-lists {
+	margin-bottom: 20px;
+}
+
+/* 单个列表 */
+.list-sidebar-list {
+	margin-bottom: 15px;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 6px;
+	background-color: var(--background-secondary);
+	overflow: hidden;
+}
+
+/* 列表头部 */
+.list-sidebar-list-header {
+	display: flex;
+	align-items: center;
+	padding: 10px;
+	background-color: var(--background-modifier-form-field-highlighted);
+	border-bottom: 1px solid var(--background-modifier-border);
+	cursor: pointer;
+	user-select: none;
+}
+
+.list-sidebar-list-header:hover {
+	background-color: var(--background-modifier-hover);
+}
+
+.list-sidebar-toggle-btn {
+	background: none;
+	border: none;
+	cursor: pointer;
+	font-size: 12px;
+	padding: 4px 8px;
+	margin-right: 8px;
+	color: var(--text-muted);
+	transition: color 0.2s;
+}
+
+.list-sidebar-toggle-btn:hover {
+	color: var(--text-normal);
+}
+
+.list-sidebar-list-name {
+	flex: 1;
+	font-weight: 600;
+	font-size: 14px;
+	color: var(--text-normal);
+}
+
+.list-sidebar-delete-btn {
+	background: none;
+	border: none;
+	cursor: pointer;
+	font-size: 14px;
+	padding: 4px 8px;
+	margin-left: 8px;
+	border-radius: 4px;
+	transition: background-color 0.2s;
+}
+
+.list-sidebar-delete-btn:hover {
+	background-color: var(--background-modifier-error);
+}
+
+/* 列表项容器 */
+.list-sidebar-items {
+	padding: 8px;
+}
+
+/* 单个列表项 */
+.list-sidebar-item {
+	display: flex;
+	align-items: center;
+	padding: 8px;
+	margin-bottom: 4px;
+	border-radius: 4px;
+	transition: background-color 0.2s;
+}
+
+.list-sidebar-item:hover {
+	background-color: var(--background-modifier-hover);
+}
+
+.list-sidebar-item-content {
+	flex: 1;
+	font-size: 13px;
+	color: var(--text-normal);
+	word-break: break-word;
+}
+
+.list-sidebar-item-content .internal-link {
+	color: var(--link-color);
+	text-decoration: none;
+	cursor: pointer;
+}
+
+.list-sidebar-item-content .internal-link:hover {
+	text-decoration: underline;
+}
+
+.list-sidebar-delete-item-btn {
+	background: none;
+	border: none;
+	cursor: pointer;
+	font-size: 18px;
+	padding: 4px 8px;
+	margin-left: 8px;
+	color: var(--text-muted);
+	border-radius: 4px;
+	transition: all 0.2s;
+	line-height: 1;
+}
+
+.list-sidebar-delete-item-btn:hover {
+	background-color: var(--background-modifier-error);
+	color: var(--text-error);
+}
+
+/* 添加按钮 */
+.list-sidebar-add-list-btn,
+.list-sidebar-add-item-btn {
+	width: 100%;
+	padding: 8px;
+	margin-top: 8px;
+	background-color: var(--interactive-normal);
+	color: var(--text-on-accent);
+	border: none;
+	border-radius: 4px;
+	cursor: pointer;
+	font-size: 13px;
+	transition: background-color 0.2s;
+}
+
+.list-sidebar-add-list-btn:hover,
+.list-sidebar-add-item-btn:hover {
+	background-color: var(--interactive-hover);
+}
+
+/* 模态框按钮容器 */
+.modal-button-container {
+	display: flex;
+	justify-content: flex-end;
+	gap: 10px;
+	margin-top: 20px;
+}
+
+.modal-button-container button {
+	padding: 6px 16px;
+	border-radius: 4px;
+	cursor: pointer;
+	font-size: 13px;
+	border: 1px solid var(--background-modifier-border);
+	background-color: var(--background-primary);
+	color: var(--text-normal);
+	transition: all 0.2s;
+}
+
+.modal-button-container button.mod-cta {
+	background-color: var(--interactive-accent);
+	color: var(--text-on-accent);
+	border-color: var(--interactive-accent);
+}
+
+.modal-button-container button:hover {
+	background-color: var(--background-modifier-hover);
+}
+
+.modal-button-container button.mod-cta:hover {
+	background-color: var(--interactive-accent-hover);
+}
+
