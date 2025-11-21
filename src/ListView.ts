@@ -366,17 +366,26 @@ export class ListView extends ItemView {
 				this.render();
 				return;
 			}
-			// 如果拖到非法区域，回弹到原位置
-			if (e.dataTransfer && e.dataTransfer.dropEffect === "none") {
-				this.render();
-				return;
-			}
 			// 检查最终位置是否改变
 			const finalIndex = Array.from(container.children).filter(
 				el => el.classList.contains("list-sidebar-item")
 			).indexOf(itemEl);
-			// 如果位置没变且没有有效放置，需要回弹动画
-			if (finalIndex === dragStartItemIndex && !isValidItemDrop) {
+			// 如果已经有有效放置，只需要重新渲染以同步UI
+			if (isValidItemDrop) {
+				this.render();
+				return;
+			}
+			// 如果位置没变，需要回弹动画
+			if (finalIndex === dragStartItemIndex) {
+				this.render();
+			} else if (finalIndex !== dragStartItemIndex && finalIndex >= 0 && finalIndex < this.lists[listIndex].items.length) {
+				// 位置改变了，即使之前经过非法位置，只要最终位置合法，就允许放置
+				const [movedItem] = this.lists[listIndex].items.splice(dragStartItemIndex, 1);
+				this.lists[listIndex].items.splice(finalIndex, 0, movedItem);
+				await this.saveData();
+				this.render();
+			} else {
+				// 无效位置，回弹
 				this.render();
 			}
 		};

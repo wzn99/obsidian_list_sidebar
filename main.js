@@ -318,14 +318,21 @@ var ListView = class extends import_obsidian.ItemView {
         this.render();
         return;
       }
-      if (e.dataTransfer && e.dataTransfer.dropEffect === "none") {
-        this.render();
-        return;
-      }
       const finalIndex = Array.from(container.children).filter(
         (el) => el.classList.contains("list-sidebar-item")
       ).indexOf(itemEl);
-      if (finalIndex === dragStartItemIndex && !isValidItemDrop) {
+      if (isValidItemDrop) {
+        this.render();
+        return;
+      }
+      if (finalIndex === dragStartItemIndex) {
+        this.render();
+      } else if (finalIndex !== dragStartItemIndex && finalIndex >= 0 && finalIndex < this.lists[listIndex].items.length) {
+        const [movedItem] = this.lists[listIndex].items.splice(dragStartItemIndex, 1);
+        this.lists[listIndex].items.splice(finalIndex, 0, movedItem);
+        await this.saveData();
+        this.render();
+      } else {
         this.render();
       }
     };
