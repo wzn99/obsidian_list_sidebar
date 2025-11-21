@@ -222,11 +222,26 @@ var ListView = class extends import_obsidian.ItemView {
     };
     const headerEl = listEl.createDiv("list-sidebar-list-header");
     headerEl.style.cursor = "pointer";
+    let clickTimer = null;
+    let isDoubleClick = false;
     headerEl.onclick = async (e) => {
       if (e.target.closest(".list-sidebar-delete-btn")) {
         return;
       }
-      if (e.detail === 2) {
+      if (e.target.closest(".list-sidebar-list-name")) {
+        if (clickTimer) {
+          clearTimeout(clickTimer);
+          clickTimer = null;
+        }
+        clickTimer = setTimeout(async () => {
+          if (!isDoubleClick) {
+            list.expanded = !list.expanded;
+            await this.saveData();
+            this.render();
+          }
+          isDoubleClick = false;
+          clickTimer = null;
+        }, 300);
         return;
       }
       list.expanded = !list.expanded;
@@ -242,6 +257,11 @@ var ListView = class extends import_obsidian.ItemView {
     nameEl.style.cursor = "pointer";
     nameEl.ondblclick = (e) => {
       e.stopPropagation();
+      isDoubleClick = true;
+      if (clickTimer) {
+        clearTimeout(clickTimer);
+        clickTimer = null;
+      }
       this.showEditListNameInput(nameEl, listIndex, list.name);
     };
     const deleteListBtn = headerEl.createEl("button", {

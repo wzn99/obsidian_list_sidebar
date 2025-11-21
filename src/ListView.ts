@@ -244,15 +244,31 @@ export class ListView extends ItemView {
 		
 		// 整个header可以点击来切换展开/收缩
 		headerEl.style.cursor = "pointer";
+		let clickTimer: NodeJS.Timeout | null = null;
+		let isDoubleClick = false;
 		headerEl.onclick = async (e) => {
 			// 如果点击的是删除按钮，不切换
 			if ((e.target as HTMLElement).closest(".list-sidebar-delete-btn")) {
 				return;
 			}
-			// 如果双击，不切换（用于编辑）
-			if (e.detail === 2) {
+			// 如果点击的是名称区域，延迟处理，等待可能的双击
+			if ((e.target as HTMLElement).closest(".list-sidebar-list-name")) {
+				if (clickTimer) {
+					clearTimeout(clickTimer);
+					clickTimer = null;
+				}
+				clickTimer = setTimeout(async () => {
+					if (!isDoubleClick) {
+						list.expanded = !list.expanded;
+						await this.saveData();
+						this.render();
+					}
+					isDoubleClick = false;
+					clickTimer = null;
+				}, 300); // 300ms延迟，等待双击事件
 				return;
 			}
+			// 其他区域直接切换
 			list.expanded = !list.expanded;
 			await this.saveData();
 			this.render();
@@ -272,6 +288,11 @@ export class ListView extends ItemView {
 		nameEl.style.cursor = "pointer";
 		nameEl.ondblclick = (e) => {
 			e.stopPropagation();
+			isDoubleClick = true;
+			if (clickTimer) {
+				clearTimeout(clickTimer);
+				clickTimer = null;
+			}
 			this.showEditListNameInput(nameEl, listIndex, list.name);
 		};
 
