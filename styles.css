@@ -157,6 +157,11 @@
 .list-sidebar-item.dragging {
 	opacity: 0;
 	pointer-events: none;
+	position: absolute;
+	left: -9999px;
+	width: 0;
+	height: 0;
+	overflow: hidden;
 }
 
 /* 拖拽占位符 */

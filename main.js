@@ -311,6 +311,17 @@ var ListView = class extends import_obsidian.ItemView {
       if (e.dataTransfer) {
         e.dataTransfer.effectAllowed = "move";
         e.dataTransfer.setData("text/plain", JSON.stringify({ listIndex, itemIndex }));
+        const dragImage = document.createElement("div");
+        dragImage.style.position = "absolute";
+        dragImage.style.top = "-1000px";
+        dragImage.style.width = "1px";
+        dragImage.style.height = "1px";
+        dragImage.style.opacity = "0";
+        document.body.appendChild(dragImage);
+        e.dataTransfer.setDragImage(dragImage, 0, 0);
+        setTimeout(() => {
+          document.body.removeChild(dragImage);
+        }, 0);
       }
       itemEl.classList.add("dragging");
       dragStartItemIndex = itemIndex;
