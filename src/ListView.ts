@@ -100,13 +100,13 @@ export class ListView extends ItemView {
 			this.render();
 		};
 
-		// 列表名称（居中，可点击编辑）
+		// 列表名称（居中，可双击编辑）
 		const nameEl = headerEl.createEl("span", {
 			text: list.name,
 			cls: "list-sidebar-list-name"
 		});
 		nameEl.style.cursor = "pointer";
-		nameEl.onclick = (e) => {
+		nameEl.ondblclick = (e) => {
 			e.stopPropagation();
 			this.showEditListNameInput(nameEl, listIndex, list.name);
 		};
@@ -148,14 +148,16 @@ export class ListView extends ItemView {
 
 	renderItem(container: HTMLElement, item: ListItem, listIndex: number, itemIndex: number) {
 		const itemEl = container.createDiv("list-sidebar-item");
+		itemEl.style.cursor = "pointer";
 		
-		// 条目内容（纯文本，居中，可点击编辑）
+		// 条目内容（纯文本，居中，可双击编辑）
 		const contentEl = itemEl.createDiv("list-sidebar-item-content");
-		const contentSpan = contentEl.createEl("span", {
+		contentEl.createEl("span", {
 			text: item.content
 		});
-		contentSpan.style.cursor = "pointer";
-		contentSpan.onclick = (e) => {
+		
+		// 双击整行即可编辑
+		itemEl.ondblclick = (e) => {
 			e.stopPropagation();
 			this.showEditItemInput(itemEl, contentEl, listIndex, itemIndex, item.content);
 		};

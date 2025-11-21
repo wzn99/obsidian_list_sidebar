@@ -137,6 +137,7 @@
 	border-radius: 4px;
 	transition: background-color 0.2s;
 	position: relative;
+	cursor: pointer;
 }
 
 .list-sidebar-item:hover {
@@ -161,15 +162,6 @@
 	color: var(--text-normal);
 	word-break: break-word;
 	text-align: center;
-}
-
-.list-sidebar-item-content span {
-	cursor: pointer;
-	transition: opacity 0.2s;
-}
-
-.list-sidebar-item-content span:hover {
-	opacity: 0.7;
 }
 
 .list-sidebar-delete-item-btn {

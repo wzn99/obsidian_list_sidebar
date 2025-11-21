@@ -107,7 +107,7 @@ var ListView = class extends import_obsidian.ItemView {
       cls: "list-sidebar-list-name"
     });
     nameEl.style.cursor = "pointer";
-    nameEl.onclick = (e) => {
+    nameEl.ondblclick = (e) => {
       e.stopPropagation();
       this.showEditListNameInput(nameEl, listIndex, list.name);
     };
@@ -141,12 +141,12 @@ var ListView = class extends import_obsidian.ItemView {
   }
   renderItem(container, item, listIndex, itemIndex) {
     const itemEl = container.createDiv("list-sidebar-item");
+    itemEl.style.cursor = "pointer";
     const contentEl = itemEl.createDiv("list-sidebar-item-content");
-    const contentSpan = contentEl.createEl("span", {
+    contentEl.createEl("span", {
       text: item.content
     });
-    contentSpan.style.cursor = "pointer";
-    contentSpan.onclick = (e) => {
+    itemEl.ondblclick = (e) => {
       e.stopPropagation();
       this.showEditItemInput(itemEl, contentEl, listIndex, itemIndex, item.content);
     };
