@@ -72,16 +72,15 @@
 .list-sidebar-toggle-btn {
 	background: none;
 	border: none;
-	cursor: pointer;
 	font-size: 12px;
 	padding: 4px 8px;
 	margin-right: 8px;
 	color: var(--text-muted);
 	transition: color 0.2s;
-}
-
-.list-sidebar-toggle-btn:hover {
-	color: var(--text-normal);
+	pointer-events: none;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
 
 .list-sidebar-list-name {

@@ -50,17 +50,6 @@ export class ListView extends ItemView {
 		container.empty();
 		container.addClass("list-sidebar-container");
 
-		// 添加设置按钮
-		const headerEl = container.createDiv("list-sidebar-header");
-		const settingsBtn = headerEl.createEl("button", {
-			cls: "list-sidebar-settings-btn",
-			attr: { "aria-label": "Settings" }
-		});
-		settingsBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>';
-		settingsBtn.onclick = () => {
-			this.plugin.openSettings();
-		};
-
 		// 添加列表容器
 		const listsContainer = container.createDiv("list-sidebar-lists");
 		
@@ -269,19 +258,27 @@ export class ListView extends ItemView {
 		// 列表头部
 		const headerEl = listEl.createDiv("list-sidebar-list-header");
 		
-		// 折叠/展开按钮
-		const toggleBtn = headerEl.createEl("button", {
-			cls: "list-sidebar-toggle-btn",
-			attr: { "aria-label": list.expanded ? "Collapse" : "Expand" }
-		});
-		toggleBtn.innerHTML = list.expanded 
-			? '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>'
-			: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>';
-		toggleBtn.onclick = async () => {
+		// 整个header可以点击来切换展开/收缩
+		headerEl.style.cursor = "pointer";
+		headerEl.onclick = async (e) => {
+			// 如果点击的是删除按钮，不切换
+			if ((e.target as HTMLElement).closest(".list-sidebar-delete-btn")) {
+				return;
+			}
+			// 如果双击，不切换（用于编辑）
+			if (e.detail === 2) {
+				return;
+			}
 			list.expanded = !list.expanded;
 			await this.saveData();
 			this.render();
 		};
+		
+		// 折叠/展开图标（仅显示，不处理点击）
+		const toggleBtn = headerEl.createDiv("list-sidebar-toggle-btn");
+		toggleBtn.innerHTML = list.expanded 
+			? '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>'
+			: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>';
 
 		// 列表名称（居中，可双击编辑）
 		const nameEl = headerEl.createEl("span", {

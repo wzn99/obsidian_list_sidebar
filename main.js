@@ -67,15 +67,6 @@ var ListView = class extends import_obsidian.ItemView {
     }
     container.empty();
     container.addClass("list-sidebar-container");
-    const headerEl = container.createDiv("list-sidebar-header");
-    const settingsBtn = headerEl.createEl("button", {
-      cls: "list-sidebar-settings-btn",
-      attr: { "aria-label": "Settings" }
-    });
-    settingsBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>';
-    settingsBtn.onclick = () => {
-      this.plugin.openSettings();
-    };
     const listsContainer = container.createDiv("list-sidebar-lists");
     listsContainer.ondragover = (e) => {
       const draggingItem = container.querySelector(".list-sidebar-item.dragging");
@@ -245,16 +236,20 @@ var ListView = class extends import_obsidian.ItemView {
       }
     };
     const headerEl = listEl.createDiv("list-sidebar-list-header");
-    const toggleBtn = headerEl.createEl("button", {
-      cls: "list-sidebar-toggle-btn",
-      attr: { "aria-label": list.expanded ? "Collapse" : "Expand" }
-    });
-    toggleBtn.innerHTML = list.expanded ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>' : '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>';
-    toggleBtn.onclick = async () => {
+    headerEl.style.cursor = "pointer";
+    headerEl.onclick = async (e) => {
+      if (e.target.closest(".list-sidebar-delete-btn")) {
+        return;
+      }
+      if (e.detail === 2) {
+        return;
+      }
       list.expanded = !list.expanded;
       await this.saveData();
       this.render();
     };
+    const toggleBtn = headerEl.createDiv("list-sidebar-toggle-btn");
+    toggleBtn.innerHTML = list.expanded ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>' : '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>';
     const nameEl = headerEl.createEl("span", {
       text: list.name,
       cls: "list-sidebar-list-name"
