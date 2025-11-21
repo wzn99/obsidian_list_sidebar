@@ -77,6 +77,22 @@ var ListView = class extends import_obsidian.ItemView {
       this.plugin.openSettings();
     };
     const listsContainer = container.createDiv("list-sidebar-lists");
+    listsContainer.ondragover = (e) => {
+      const dragging = container.querySelector(".list-sidebar-item.dragging");
+      if (dragging) {
+        e.preventDefault();
+        if (e.dataTransfer) {
+          e.dataTransfer.dropEffect = "none";
+        }
+      }
+    };
+    listsContainer.ondrop = (e) => {
+      const dragging = container.querySelector(".list-sidebar-item.dragging");
+      if (dragging) {
+        e.preventDefault();
+        this.render();
+      }
+    };
     this.lists.forEach((list, listIndex) => {
       this.renderList(listsContainer, list, listIndex);
     });
@@ -199,8 +215,12 @@ var ListView = class extends import_obsidian.ItemView {
       }
       itemEl.classList.add("dragging");
     };
-    itemEl.ondragend = () => {
+    itemEl.ondragend = (e) => {
       itemEl.classList.remove("dragging");
+      container.querySelectorAll(".drag-placeholder").forEach((el) => el.remove());
+      if (e.dataTransfer && e.dataTransfer.dropEffect === "none") {
+        this.render();
+      }
     };
     itemEl.ondragover = (e) => {
       e.preventDefault();
@@ -208,32 +228,59 @@ var ListView = class extends import_obsidian.ItemView {
       if (e.dataTransfer) {
         e.dataTransfer.dropEffect = "move";
       }
-      const afterElement = this.getDragAfterElement(container, e.clientY, "item");
       const dragging = container.querySelector(".dragging");
-      if (dragging) {
+      if (!dragging)
+        return;
+      const dragData = dragging.dataset;
+      const dragListIndex = parseInt(dragData.listIndex || "-1");
+      if (dragListIndex === listIndex) {
+        const afterElement = this.getDragAfterElement(container, e.clientY, "item");
+        container.querySelectorAll(".drag-placeholder").forEach((el) => el.remove());
+        const placeholder = container.createDiv("drag-placeholder");
+        if (afterElement == null) {
+          container.appendChild(placeholder);
+        } else {
+          container.insertBefore(placeholder, afterElement);
+        }
         if (afterElement == null) {
           container.appendChild(dragging);
         } else {
           container.insertBefore(dragging, afterElement);
         }
+      } else {
+        if (e.dataTransfer) {
+          e.dataTransfer.dropEffect = "none";
+        }
+      }
+    };
+    itemEl.ondragleave = (e) => {
+      const relatedTarget = e.relatedTarget;
+      if (!relatedTarget || !container.contains(relatedTarget)) {
+        container.querySelectorAll(".drag-placeholder").forEach((el) => el.remove());
       }
     };
     itemEl.ondrop = async (e) => {
       e.preventDefault();
       e.stopPropagation();
+      container.querySelectorAll(".drag-placeholder").forEach((el) => el.remove());
       if (e.dataTransfer) {
         try {
           const data = JSON.parse(e.dataTransfer.getData("text/plain"));
           const fromListIndex = data.listIndex;
           const fromItemIndex = data.itemIndex;
-          const toItemIndex = Array.from(container.children).indexOf(itemEl);
-          if (fromListIndex === listIndex && fromItemIndex !== toItemIndex && !isNaN(fromItemIndex) && !isNaN(toItemIndex)) {
+          const toItemIndex = Array.from(container.children).filter(
+            (el) => el.classList.contains("list-sidebar-item")
+          ).indexOf(itemEl);
+          if (fromListIndex === listIndex && fromItemIndex !== toItemIndex && !isNaN(fromItemIndex) && !isNaN(toItemIndex) && toItemIndex >= 0) {
             const [movedItem] = this.lists[listIndex].items.splice(fromItemIndex, 1);
             this.lists[listIndex].items.splice(toItemIndex, 0, movedItem);
             await this.saveData();
             this.render();
+          } else {
+            this.render();
           }
         } catch (error) {
+          this.render();
         }
       }
     };

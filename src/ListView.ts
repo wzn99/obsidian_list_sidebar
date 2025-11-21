@@ -63,6 +63,27 @@ export class ListView extends ItemView {
 
 		// 添加列表容器
 		const listsContainer = container.createDiv("list-sidebar-lists");
+		
+		// 处理列表容器的拖拽离开事件，防止条目拖到列表外
+		listsContainer.ondragover = (e) => {
+			const dragging = container.querySelector(".list-sidebar-item.dragging");
+			if (dragging) {
+				e.preventDefault();
+				// 不允许在列表容器上放置条目
+				if (e.dataTransfer) {
+					e.dataTransfer.dropEffect = "none";
+				}
+			}
+		};
+		
+		listsContainer.ondrop = (e) => {
+			const dragging = container.querySelector(".list-sidebar-item.dragging");
+			if (dragging) {
+				e.preventDefault();
+				// 拖到非法区域，回弹
+				this.render();
+			}
+		};
 
 		// 渲染所有列表
 		this.lists.forEach((list, listIndex) => {
@@ -218,8 +239,14 @@ export class ListView extends ItemView {
 			itemEl.classList.add("dragging");
 		};
 		
-		itemEl.ondragend = () => {
+		itemEl.ondragend = (e) => {
 			itemEl.classList.remove("dragging");
+			// 移除所有拖拽占位符
+			container.querySelectorAll(".drag-placeholder").forEach(el => el.remove());
+			// 如果拖到非法区域，回弹到原位置
+			if (e.dataTransfer && e.dataTransfer.dropEffect === "none") {
+				this.render();
+			}
 		};
 		
 		itemEl.ondragover = (e) => {
@@ -228,35 +255,78 @@ export class ListView extends ItemView {
 			if (e.dataTransfer) {
 				e.dataTransfer.dropEffect = "move";
 			}
-			const afterElement = this.getDragAfterElement(container, e.clientY, "item");
-			const dragging = container.querySelector(".dragging");
-			if (dragging) {
+			// 检查是否在同一列表内
+			const dragging = container.querySelector(".dragging") as HTMLElement;
+			if (!dragging) return;
+			
+			const dragData = dragging.dataset;
+			const dragListIndex = parseInt(dragData.listIndex || "-1");
+			
+			// 只允许在同一列表内拖动
+			if (dragListIndex === listIndex) {
+				const afterElement = this.getDragAfterElement(container, e.clientY, "item");
+				// 移除旧的占位符
+				container.querySelectorAll(".drag-placeholder").forEach(el => el.remove());
+				
+				// 创建占位符显示插入位置
+				const placeholder = container.createDiv("drag-placeholder");
 				if (afterElement == null) {
-					container.appendChild(dragging as HTMLElement);
+					container.appendChild(placeholder);
 				} else {
-					container.insertBefore(dragging as HTMLElement, afterElement);
+					container.insertBefore(placeholder, afterElement);
 				}
+				
+				// 移动拖拽元素
+				if (afterElement == null) {
+					container.appendChild(dragging);
+				} else {
+					container.insertBefore(dragging, afterElement);
+				}
+			} else {
+				// 不在同一列表，不允许放置
+				if (e.dataTransfer) {
+					e.dataTransfer.dropEffect = "none";
+				}
+			}
+		};
+		
+		itemEl.ondragleave = (e) => {
+			// 如果离开的是条目本身，不移除占位符
+			const relatedTarget = e.relatedTarget as HTMLElement;
+			if (!relatedTarget || !container.contains(relatedTarget)) {
+				container.querySelectorAll(".drag-placeholder").forEach(el => el.remove());
 			}
 		};
 		
 		itemEl.ondrop = async (e) => {
 			e.preventDefault();
 			e.stopPropagation();
+			// 移除占位符
+			container.querySelectorAll(".drag-placeholder").forEach(el => el.remove());
+			
 			if (e.dataTransfer) {
 				try {
 					const data = JSON.parse(e.dataTransfer.getData("text/plain"));
 					const fromListIndex = data.listIndex;
 					const fromItemIndex = data.itemIndex;
-					const toItemIndex = Array.from(container.children).indexOf(itemEl);
+					const toItemIndex = Array.from(container.children).filter(
+						el => el.classList.contains("list-sidebar-item")
+					).indexOf(itemEl);
 					
-					if (fromListIndex === listIndex && fromItemIndex !== toItemIndex && !isNaN(fromItemIndex) && !isNaN(toItemIndex)) {
+					// 确保在同一列表内且位置不同
+					if (fromListIndex === listIndex && fromItemIndex !== toItemIndex && 
+					    !isNaN(fromItemIndex) && !isNaN(toItemIndex) && toItemIndex >= 0) {
 						const [movedItem] = this.lists[listIndex].items.splice(fromItemIndex, 1);
 						this.lists[listIndex].items.splice(toItemIndex, 0, movedItem);
 						await this.saveData();
 						this.render();
+					} else {
+						// 非法放置，回弹
+						this.render();
 					}
 				} catch (error) {
-					// 忽略解析错误
+					// 解析错误，回弹
+					this.render();
 				}
 			}
 		};
