@@ -476,14 +476,20 @@ export class ListView extends ItemView {
 	}
 
 	showAddListInput(container: HTMLElement) {
-		const inputEl = container.createEl("input", {
-			type: "text",
+		const textareaEl = container.createEl("textarea", {
 			cls: "list-sidebar-inline-input"
 		});
-		inputEl.placeholder = "List name";
+		textareaEl.placeholder = "List name";
+		textareaEl.rows = 1;
+		// 自动调整高度
+		const adjustHeight = () => {
+			textareaEl.style.height = "auto";
+			textareaEl.style.height = textareaEl.scrollHeight + "px";
+		};
+		textareaEl.addEventListener("input", adjustHeight);
 		
 		const finishInput = async () => {
-			const value = inputEl.value.trim();
+			const value = textareaEl.value.trim();
 			if (value) {
 				const newList: List = {
 					name: value,
@@ -494,35 +500,41 @@ export class ListView extends ItemView {
 				await this.saveData();
 				this.render();
 			} else {
-				inputEl.remove();
+				textareaEl.remove();
 			}
 		};
 
-		inputEl.focus();
-		inputEl.onkeydown = async (e) => {
-			if (e.key === "Enter") {
+		textareaEl.focus();
+		textareaEl.onkeydown = async (e) => {
+			if (e.key === "Enter" && !e.shiftKey) {
 				e.preventDefault();
 				await finishInput();
 			} else if (e.key === "Escape") {
 				e.preventDefault();
-				inputEl.remove();
+				textareaEl.remove();
 			}
 		};
 		
-		inputEl.onblur = async () => {
+		textareaEl.onblur = async () => {
 			await finishInput();
 		};
 	}
 
 	showAddItemInput(container: HTMLElement, listIndex: number) {
-		const inputEl = container.createEl("input", {
-			type: "text",
+		const textareaEl = container.createEl("textarea", {
 			cls: "list-sidebar-inline-input"
 		});
-		inputEl.placeholder = "Item content";
+		textareaEl.placeholder = "Item content";
+		textareaEl.rows = 1;
+		// 自动调整高度
+		const adjustHeight = () => {
+			textareaEl.style.height = "auto";
+			textareaEl.style.height = textareaEl.scrollHeight + "px";
+		};
+		textareaEl.addEventListener("input", adjustHeight);
 		
 		const finishInput = async () => {
-			const value = inputEl.value.trim();
+			const value = textareaEl.value.trim();
 			if (value) {
 				const newItem: ListItem = {
 					content: value
@@ -531,22 +543,22 @@ export class ListView extends ItemView {
 				await this.saveData();
 				this.render();
 			} else {
-				inputEl.remove();
+				textareaEl.remove();
 			}
 		};
 
-		inputEl.focus();
-		inputEl.onkeydown = async (e) => {
-			if (e.key === "Enter") {
+		textareaEl.focus();
+		textareaEl.onkeydown = async (e) => {
+			if (e.key === "Enter" && !e.shiftKey) {
 				e.preventDefault();
 				await finishInput();
 			} else if (e.key === "Escape") {
 				e.preventDefault();
-				inputEl.remove();
+				textareaEl.remove();
 			}
 		};
 		
-		inputEl.onblur = async () => {
+		textareaEl.onblur = async () => {
 			await finishInput();
 		};
 	}
@@ -554,14 +566,21 @@ export class ListView extends ItemView {
 	showEditListNameInput(nameEl: HTMLElement, listIndex: number, currentValue: string) {
 		const originalText = nameEl.textContent;
 		nameEl.empty();
-		const inputEl = nameEl.createEl("input", {
-			type: "text",
+		const textareaEl = nameEl.createEl("textarea", {
 			cls: "list-sidebar-inline-input"
 		});
-		inputEl.value = currentValue;
+		textareaEl.value = currentValue;
+		textareaEl.rows = 1;
+		// 自动调整高度
+		const adjustHeight = () => {
+			textareaEl.style.height = "auto";
+			textareaEl.style.height = textareaEl.scrollHeight + "px";
+		};
+		adjustHeight();
+		textareaEl.addEventListener("input", adjustHeight);
 		
 		const finishInput = async () => {
-			const value = inputEl.value.trim();
+			const value = textareaEl.value.trim();
 			if (value && value !== currentValue) {
 				this.lists[listIndex].name = value;
 				await this.saveData();
@@ -575,10 +594,10 @@ export class ListView extends ItemView {
 			}
 		};
 
-		inputEl.focus();
-		inputEl.select();
-		inputEl.onkeydown = async (e) => {
-			if (e.key === "Enter") {
+		textareaEl.focus();
+		textareaEl.select();
+		textareaEl.onkeydown = async (e) => {
+			if (e.key === "Enter" && !e.shiftKey) {
 				e.preventDefault();
 				await finishInput();
 			} else if (e.key === "Escape") {
@@ -587,21 +606,28 @@ export class ListView extends ItemView {
 			}
 		};
 		
-		inputEl.onblur = async () => {
+		textareaEl.onblur = async () => {
 			await finishInput();
 		};
 	}
 
 	showEditItemInput(itemEl: HTMLElement, contentEl: HTMLElement, listIndex: number, itemIndex: number, currentValue: string) {
 		contentEl.empty();
-		const inputEl = contentEl.createEl("input", {
-			type: "text",
+		const textareaEl = contentEl.createEl("textarea", {
 			cls: "list-sidebar-inline-input"
 		});
-		inputEl.value = currentValue;
+		textareaEl.value = currentValue;
+		textareaEl.rows = 1;
+		// 自动调整高度
+		const adjustHeight = () => {
+			textareaEl.style.height = "auto";
+			textareaEl.style.height = textareaEl.scrollHeight + "px";
+		};
+		adjustHeight();
+		textareaEl.addEventListener("input", adjustHeight);
 		
 		const finishInput = async () => {
-			const value = inputEl.value.trim();
+			const value = textareaEl.value.trim();
 			if (value && value !== currentValue) {
 				this.lists[listIndex].items[itemIndex].content = value;
 				await this.saveData();
@@ -617,10 +643,10 @@ export class ListView extends ItemView {
 			}
 		};
 
-		inputEl.focus();
-		inputEl.select();
-		inputEl.onkeydown = async (e) => {
-			if (e.key === "Enter") {
+		textareaEl.focus();
+		textareaEl.select();
+		textareaEl.onkeydown = async (e) => {
+			if (e.key === "Enter" && !e.shiftKey) {
 				e.preventDefault();
 				await finishInput();
 			} else if (e.key === "Escape") {
@@ -629,7 +655,7 @@ export class ListView extends ItemView {
 			}
 		};
 		
-		inputEl.onblur = async () => {
+		textareaEl.onblur = async () => {
 			await finishInput();
 		};
 	}
