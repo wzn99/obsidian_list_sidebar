@@ -413,7 +413,11 @@ var ListView = class extends import_obsidian.ItemView {
       textareaEl.style.height = textareaEl.scrollHeight + "px";
     };
     textareaEl.addEventListener("input", adjustHeight);
+    let isFinished = false;
     const finishInput = async () => {
+      if (isFinished)
+        return;
+      isFinished = true;
       const value = textareaEl.value.trim();
       if (value) {
         const newList = {
@@ -453,7 +457,11 @@ var ListView = class extends import_obsidian.ItemView {
       textareaEl.style.height = textareaEl.scrollHeight + "px";
     };
     textareaEl.addEventListener("input", adjustHeight);
+    let isFinished = false;
     const finishInput = async () => {
+      if (isFinished)
+        return;
+      isFinished = true;
       const value = textareaEl.value.trim();
       if (value) {
         const newItem = {
@@ -494,7 +502,11 @@ var ListView = class extends import_obsidian.ItemView {
     };
     adjustHeight();
     textareaEl.addEventListener("input", adjustHeight);
+    let isFinished = false;
     const finishInput = async () => {
+      if (isFinished)
+        return;
+      isFinished = true;
       const value = textareaEl.value.trim();
       if (value && value !== currentValue) {
         this.lists[listIndex].name = value;
@@ -534,7 +546,11 @@ var ListView = class extends import_obsidian.ItemView {
     };
     adjustHeight();
     textareaEl.addEventListener("input", adjustHeight);
+    let isFinished = false;
     const finishInput = async () => {
+      if (isFinished)
+        return;
+      isFinished = true;
       const value = textareaEl.value.trim();
       if (value && value !== currentValue) {
         this.lists[listIndex].items[itemIndex].content = value;

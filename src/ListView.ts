@@ -488,7 +488,10 @@ export class ListView extends ItemView {
 		};
 		textareaEl.addEventListener("input", adjustHeight);
 		
+		let isFinished = false;
 		const finishInput = async () => {
+			if (isFinished) return;
+			isFinished = true;
 			const value = textareaEl.value.trim();
 			if (value) {
 				const newList: List = {
@@ -533,7 +536,10 @@ export class ListView extends ItemView {
 		};
 		textareaEl.addEventListener("input", adjustHeight);
 		
+		let isFinished = false;
 		const finishInput = async () => {
+			if (isFinished) return;
+			isFinished = true;
 			const value = textareaEl.value.trim();
 			if (value) {
 				const newItem: ListItem = {
@@ -579,7 +585,10 @@ export class ListView extends ItemView {
 		adjustHeight();
 		textareaEl.addEventListener("input", adjustHeight);
 		
+		let isFinished = false;
 		const finishInput = async () => {
+			if (isFinished) return;
+			isFinished = true;
 			const value = textareaEl.value.trim();
 			if (value && value !== currentValue) {
 				this.lists[listIndex].name = value;
@@ -626,7 +635,10 @@ export class ListView extends ItemView {
 		adjustHeight();
 		textareaEl.addEventListener("input", adjustHeight);
 		
+		let isFinished = false;
 		const finishInput = async () => {
+			if (isFinished) return;
+			isFinished = true;
 			const value = textareaEl.value.trim();
 			if (value && value !== currentValue) {
 				this.lists[listIndex].items[itemIndex].content = value;
