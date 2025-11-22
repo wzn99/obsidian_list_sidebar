@@ -1,11 +1,10 @@
 # Obsidian List Sidebar Plugin
 
-An Obsidian plugin that displays collapsible lists in the sidebar, supporting note links and plain text items for quick access to frequently used content.
+An Obsidian plugin that displays collapsible lists in the sidebar for quick access to frequently used content.
 
 ## Features
 
 - 📋 **Multiple Lists**: Create and manage multiple independent lists, each can be collapsed/expanded
-- 🔗 **Note Links**: Support note links in `[[note]]` format - click to navigate
 - 📝 **Plain Text Items**: Add plain text entries to your lists
 - ✏️ **Multi-line Editing**: Edit list names and items with multi-line textarea support
 - 🖱️ **Drag & Drop**: 
@@ -18,14 +17,16 @@ An Obsidian plugin that displays collapsible lists in the sidebar, supporting no
 
 ## Installation
 
-### From GitHub (Recommended)
+### Using BART Plugin (Recommended)
 
-1. Open Obsidian Settings
-2. Go to "Community plugins" → "Browse"
-3. Search for "List Sidebar" or:
-   - Click "Install from GitHub"
-   - Enter repository: `wzn99/obsidian_list_sidebar`
-   - Click Install
+1. Install the BART plugin if you haven't already
+2. Open Obsidian Settings → Community plugins → BART
+3. Enter the repository URL: `https://github.com/wzn99/obsidian_list_sidebar`
+4. Click Install
+
+### From Official Plugin Market
+
+Coming soon...
 
 ### Manual Installation
 
@@ -45,7 +46,6 @@ An Obsidian plugin that displays collapsible lists in the sidebar, supporting no
 8. **Drag & Drop**: 
    - Drag list headers to reorder lists
    - Drag items to reorder within a list or move between lists
-9. **Note Links**: Enter `[[note name]]` format to create clickable note links
 
 ## Settings
 
@@ -62,24 +62,9 @@ List data is saved in Markdown format:
 ```markdown
 ## List Name <!-- expanded:true -->
 
-- [[Note 1]]
-- Plain text item
-- [[Note 2]]
-```
-
-## Development
-
-To contribute or modify the plugin:
-
-```bash
-# Install dependencies
-npm install
-
-# Development mode (auto-watch for changes)
-npm run dev
-
-# Build for production
-npm run build
+- Plain text item 1
+- Plain text item 2
+- Plain text item 3
 ```
 
 ## License
