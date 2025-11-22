@@ -858,8 +858,22 @@ var ListSidebarPlugin = class extends import_obsidian2.Plugin {
   }
   async saveLists(lists) {
     try {
-      const content = this.generateMarkdownFile(lists);
       const file = this.app.vault.getAbstractFileByPath(this.settings.filePath);
+      if (lists.length === 0 && file && file instanceof import_obsidian2.TFile) {
+        try {
+          const existingContent = await this.app.vault.read(file);
+          if (existingContent.trim().length > 0) {
+            const existingLists = this.parseMarkdownFile(existingContent);
+            if (existingLists.length > 0) {
+              console.warn("\u4FDD\u5B58\u5217\u8868\u6570\u636E\uFF1A\u68C0\u6D4B\u5230\u6587\u4EF6\u6709\u5185\u5BB9\u4F46lists\u4E3A\u7A7A\uFF0C\u8DF3\u8FC7\u4FDD\u5B58\u4EE5\u907F\u514D\u8986\u76D6\u6570\u636E");
+              return;
+            }
+          }
+        } catch (readError) {
+          console.warn("\u8BFB\u53D6\u73B0\u6709\u6587\u4EF6\u5185\u5BB9\u5931\u8D25\uFF0C\u7EE7\u7EED\u4FDD\u5B58:", readError);
+        }
+      }
+      const content = this.generateMarkdownFile(lists);
       if (file && file instanceof import_obsidian2.TFile) {
         await this.app.vault.modify(file, content);
       } else {

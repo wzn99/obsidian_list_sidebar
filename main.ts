@@ -101,8 +101,30 @@ export default class ListSidebarPlugin extends Plugin {
 
 	async saveLists(lists: List[]): Promise<void> {
 		try {
-			const content = this.generateMarkdownFile(lists);
 			const file = this.app.vault.getAbstractFileByPath(this.settings.filePath);
+			
+			// 如果lists为空且文件已存在，先检查文件是否有内容
+			// 避免用空内容覆盖已有数据的文件
+			if (lists.length === 0 && file && file instanceof TFile) {
+				try {
+					const existingContent = await this.app.vault.read(file);
+					// 如果文件有内容（去除空白后不为空），说明可能是加载失败
+					// 不应该用空内容覆盖，应该先尝试重新加载
+					if (existingContent.trim().length > 0) {
+						const existingLists = this.parseMarkdownFile(existingContent);
+						// 如果能够解析出内容，说明文件有数据，不应该覆盖
+						if (existingLists.length > 0) {
+							console.warn("保存列表数据：检测到文件有内容但lists为空，跳过保存以避免覆盖数据");
+							return;
+						}
+					}
+				} catch (readError) {
+					// 读取失败，继续正常保存流程
+					console.warn("读取现有文件内容失败，继续保存:", readError);
+				}
+			}
+			
+			const content = this.generateMarkdownFile(lists);
 			
 			if (file && file instanceof TFile) {
 				await this.app.vault.modify(file, content);
